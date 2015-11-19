@@ -19,7 +19,8 @@ Ext.define('CustomApp', {
 						name : t.get("Name"),
 						iso : t.raw.ReleaseDate,
 						denver : moment (t.raw.ReleaseDate).tz( workspaceTimezone ).format(),
-						newyork : moment(t.raw.ReleaseDate).tz("America/New_York").format()
+						newyork : moment(t.raw.ReleaseDate).tz("America/New_York").format(),
+						isdst : (moment(t.raw.ReleaseDate).tz("America/New_York")).isDST()
 
 					}
 				});
@@ -53,7 +54,8 @@ Ext.define('CustomApp', {
 	        	{name: 'name'},
 	        	{name: 'iso'},
 	           	{name: 'denver' },
-	           	{name: 'newyork' }
+	           	{name: 'newyork' },
+	           	{name: 'isdst' }
 	        ]
 	    });
     	store.loadData(data);
@@ -65,6 +67,7 @@ Ext.define('CustomApp', {
 	            { header: "ISO", sortable: true, dataIndex: 'iso',width:250},
 	            { header: "Denver", sortable: true, dataIndex: 'denver',width:250},
 	            { header: "NewYork", sortable: true, dataIndex: 'newyork',width:250},
+	            { header: "isDST", sortable: true, dataIndex: 'isdst',width:25},
 
 	        ],
 	        stripeRows: true,
