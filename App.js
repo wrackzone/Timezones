@@ -3,6 +3,8 @@ Ext.define('CustomApp', {
     componentCls: 'app',
     launch: function() {
 
+    	var that = this;
+
     	var workspaceTimezone = this.getContext().getWorkspace().WorkspaceConfiguration.TimeZone;
 
     	console.log("Timezone:",workspaceTimezone);
@@ -10,10 +12,21 @@ Ext.define('CustomApp', {
     	this.loadTimeBoxes().then( {
 			success : function(timeboxes) {
 
-				// show raw release dates (iso)
-				console.log( _.map(timeboxes,function(t){ 
-					return t.raw.ReleaseDate 
-				}));
+				var data = _.map(timeboxes,function(t){ 
+					
+					return { 
+
+						name : t.get("Name"),
+						iso : t.raw.ReleaseDate,
+						denver : moment (t.raw.ReleaseDate).tz( workspaceTimezone ).format(),
+						newyork : moment(t.raw.ReleaseDate).tz("America/New_York").format()
+
+					}
+				});
+
+				console.log("data",data);
+
+				that.add( that.addTimezoneTable(data));
 
 				// show release dates converted to workspace timezone
 				console.log( _.map(timeboxes,function(t){ 
@@ -29,6 +42,39 @@ Ext.define('CustomApp', {
 		});
 
     },
+
+    addTimezoneTable : function( data ) {
+
+		var that = this;
+
+		// create the data store
+	    var store = new Ext.data.ArrayStore({
+	        fields: [
+	        	{name: 'name'},
+	        	{name: 'iso'},
+	           	{name: 'denver' },
+	           	{name: 'newyork' }
+	        ]
+	    });
+    	store.loadData(data);
+
+		var grid = new Ext.grid.GridPanel({
+	        store: store,
+	        columns: [
+	        	{ header: "Name", sortable: true, dataIndex: 'name',width:250},
+	            { header: "ISO", sortable: true, dataIndex: 'iso',width:250},
+	            { header: "Denver", sortable: true, dataIndex: 'denver',width:250},
+	            { header: "NewYork", sortable: true, dataIndex: 'newyork',width:250},
+
+	        ],
+	        stripeRows: true,
+	        title:'Scope Change Since Baseline',
+	    });
+
+	    // that.add(grid);
+	    return grid;
+
+	},
 
     loadTimeBoxes : function() {
 
